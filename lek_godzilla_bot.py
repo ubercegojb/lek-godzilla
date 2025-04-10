@@ -115,6 +115,12 @@ def main():
     webhook_url = f"{BASE_URL}/{TOKEN}"
     updater.bot.setWebhook(url=webhook_url)
 
+    print("🔥 DEBUG ENV:")
+    print("TOKEN:", TOKEN)
+    print("OPENROUTER_API_KEY:", bool(OPENROUTER_API_KEY))
+    print("GROQ_API_KEY:", bool(GROQ_API_KEY))
+    print("BASE_URL:", BASE_URL)
+
 if __name__ == '__main__':
     main()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
