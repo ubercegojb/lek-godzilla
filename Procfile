@@ -1,0 +1,1 @@
+web: python lek_godzilla_bot.py
