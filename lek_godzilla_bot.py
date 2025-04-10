@@ -13,7 +13,7 @@ import os
 # === CONFIG ===
 TOKEN = os.getenv("TELEGRAM_TOKEN") or "8064847863:AAG3ruw0U3jV0FruQCrtWuN32y340zkuNYU"
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or "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"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY") or ""
+GROQ_API_KEY = os.getenv("GROQ_API_KEY") or "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"
 
 # === LOG ===
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
