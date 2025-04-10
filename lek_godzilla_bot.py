@@ -1,7 +1,7 @@
 # LEK BLACK GODZILLA SUPREMO – BOT COMPLETO (IA + IMAGENS + COMANDOS + MULTI-APIs)
 # -----------------------------------------------------------
-# Requisitos: python-telegram-bot, requests, json
-# IAs: via OpenRouter.ai, Groq API, Anthropic (Claude) – tudo gratuito, online e sem censura
+# Requisitos: python-telegram-bot, requests, json, flask
+# IAs: via OpenRouter.ai, Groq API – tudo gratuito, online e sem censura
 
 from telegram import Update, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -9,14 +9,29 @@ import logging
 import requests
 import json
 import os
+from flask import Flask, request
 
 # === CONFIG ===
-TOKEN = os.getenv("TELEGRAM_TOKEN") or "8064847863:AAG3ruw0U3jV0FruQCrtWuN32y340zkuNYU"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or "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"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY") or "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"
+TOKEN = os.getenv("TELEGRAM_TOKEN")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+BASE_URL = os.getenv("BASE_URL")
 
 # === LOG ===
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+# === FLASK APP ===
+app = Flask(__name__)
+
+@app.route(f"/{TOKEN}", methods=["POST"])
+def receive_update():
+    update = Update.de_json(request.get_json(force=True), updater.bot)
+    dispatcher.process_update(update)
+    return 'ok'
+
+@app.route("/", methods=["GET"])
+def index():
+    return "Lek Godzilla Supremo 🔥"
 
 # === FUNÇÃO IA MULTI-API ===
 def perguntar_ai(prompt):
@@ -86,16 +101,20 @@ def reply(update: Update, context: CallbackContext) -> None:
 
 # === MAIN ===
 def main():
+    global updater, dispatcher
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
+
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("pix", comando_pix))
     dispatcher.add_handler(CommandHandler("hot", comando_hot))
     dispatcher.add_handler(CommandHandler("foguete", comando_foguete))
     dispatcher.add_handler(CommandHandler("imagem", comando_imagem))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, reply))
-    updater.start_polling()
-    updater.idle()
+
+    webhook_url = f"{BASE_URL}/{TOKEN}"
+    updater.bot.setWebhook(url=webhook_url)
 
 if __name__ == '__main__':
     main()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
