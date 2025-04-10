@@ -1,29 +1,48 @@
-from telegram import Update, Bot
+# LEK GODZILLA - Bot Telegram com IA Open-Source Integrada (via LM Studio)
+# -----------------------------------------------
+# Requisitos: python-telegram-bot, requests
+# Subir em: Render.com, Replit.com ou local
+# A IA deve estar rodando localmente via LM Studio (porta 1234, ou edita abaixo)
+
+from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import logging
-import random
+import requests
 
 # === CONFIG ===
 TOKEN = "8064847863:AAG3ruw0U3jV0FruQCrtWuN32y340zkuNYU"
-lek_god_respostas = [
-    "Fala tu, chefia 😈 Aqui é o LEK GODZILLA na escuta... o que tu quer dominar hoje?",
-    "Tu mandou isso aí, mas já pensou em como transformar isso em dinheiro hoje? 💸",
-    "Rapaz... tu tá cutucando o monstro certo. Manda a visão completa. 👊",
-    "Se for pra ganhar grana com isso, eu tô dentro. Desenvolve aí. 😎",
-    "Lek GODZILLA ativado, parceiro. Tô pronto pra devorar a internet contigo. 🌐🔥"
-]
+LOCAL_AI_ENDPOINT = "http://localhost:1234/v1/completions"  # URL da IA local (LM Studio)
+HEADERS = {"Content-Type": "application/json"}
 
 # === LOG ===
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+# === FUNÇÃO: Conecta com a IA local ===
+def perguntar_ai(prompt):
+    payload = {
+        "prompt": prompt,
+        "max_tokens": 200,
+        "temperature": 0.8,
+        "stop": ["\n"],
+    }
+    try:
+        response = requests.post(LOCAL_AI_ENDPOINT, json=payload, headers=HEADERS)
+        if response.status_code == 200:
+            result = response.json()
+            return result.get("choices", [{}])[0].get("text", "Sem resposta da IA.")
+        else:
+            return f"Erro na IA (status {response.status_code})"
+    except Exception as e:
+        return f"Erro na conexão com a IA: {e}"
 
 # === HANDLERS ===
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("👑 Salve! Tu ativou o LEK GODZILLA. Me manda tua dúvida ou missão digital e vamo começar a quebrar tudo!")
 
 def reply(update: Update, context: CallbackContext) -> None:
-    msg = update.message.text
-    resposta = random.choice(lek_god_respostas)
-    update.message.reply_text(resposta)
+    user_msg = update.message.text
+    resposta_lek = perguntar_ai(user_msg)
+    update.message.reply_text(resposta_lek)
 
 # === MAIN ===
 def main():
